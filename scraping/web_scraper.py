@@ -1,5 +1,8 @@
 from requests import get
 from bs4 import BeautifulSoup
+import json
+
+dict_car={}
 
 response = get('https://sfbay.craigslist.org/search/eby/apa?hasPic=1&availabilityMode=0')
 response = get('https://sfbay.craigslist.org/search/cta?query=car&sort=rel&purveyor-input=all')
@@ -9,41 +12,60 @@ posts = html_soup.find_all('li', class_= 'result-row')
 print(type(posts)) #to double check that I got a ResultSet
 print(len(posts)) #to double check I got 120 (elements/page)
 
-#price
-post_one = posts[0]
-post_one_price = post_one.a.text
-price=float(post_one_price.strip().strip("$").replace(",","."))
-print(type(price))
-
-#time
-post_one_time = post_one.find('time', class_= 'result-date')
-post_one_datetime = post_one_time['datetime']
-print(post_one_datetime)
+post = posts[0]
 
 #title
 #title is a and that class, link is grabbing the href attribute of that variable
-post_one_title = post_one.find('a', class_='result-title hdrlnk')
-post_one_link = post_one_title['href']
-
+post_title = post.find('a', class_='result-title hdrlnk')
+post_link = post_title['href']
 #easy to grab the post title by taking the text element of the title variable
-post_one_title_text = post_one_title.text
-print(post_one_title_text)
+post_title_text = post_title.text
+
+dict_car["title"] = post_title_text
+
+
+#price
+post_price = post.a.text
+price=float(post_price.strip().strip("$").replace(",","."))
+
+dict_car["price"]=price
+
+#time
+post_time = post.find('time', class_= 'result-date')
+post_datetime = post_time['datetime']
+
+dict_car["datetime"] = post_datetime
 
 
 
-response = get(post_one_link)
+# **** Get infor from post it self
+response = get(post_link)
 html_soup = BeautifulSoup(response.text, 'html.parser')
 
 #Attribut
 attrbs_group = html_soup.find_all('p', class_= 'attrgroup')
-attrbs_one = attrbs_group[0]
+product = attrbs_group[0].span.b.text
+dict_car["product_name"] = product
+
+dict_attrb={}
 attrbs = attrbs_group[1].find_all('span')
+for attrb in attrbs:
+    split_attrb=attrb.text.split(": ")
+    dict_attrb[split_attrb[0]] = split_attrb[1]
 
-print(attrbs_group[0].span.b.text)
+dict_car["attributs"] = dict_attrb
 
-print(attrbs[1].text.split(": "))
 
 description = html_soup.find_all('section', id = 'postingbody')[0].text
-print(description)
+dict_car["description"] = description
+
+#print(dict_car)
+
+json_car=json.dumps(dict_car)
+
+print(json_car)
+
+
+
 
 
