@@ -6,7 +6,8 @@ list_car=[]
 dict_car={}
 
 response = get('https://sfbay.craigslist.org/search/eby/apa?hasPic=1&availabilityMode=0')
-response = get('https://sfbay.craigslist.org/search/cta?s=0&query=car&sort=rel&purveyor-input=all')
+response = get('https://sfbay.craigslist.org/search/cta?s=0&query=car&sort=rel&purveyor-input=all') 
+# s=0 är bil 1-120 och s=120 är bil 121-240 sä en for loop som hoppar i = i + 120 där  init i = 0 !!! 
 html_soup = BeautifulSoup(response.text, 'html.parser')
 
 posts = html_soup.find_all('li', class_= 'result-row')
