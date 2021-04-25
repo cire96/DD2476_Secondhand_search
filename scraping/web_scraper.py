@@ -1,81 +1,130 @@
 from requests import get
 from bs4 import BeautifulSoup
+import numpy as np
 import json
 
 list_car=[]
 dict_car={}
 
-response = get('https://sfbay.craigslist.org/search/eby/apa?hasPic=1&availabilityMode=0')
-response = get('https://sfbay.craigslist.org/search/cta?s=0&query=car&sort=rel&purveyor-input=all') 
+catigorys = ["cta","wta","pta"]
+
+orangecounty
+sfbay
+losangeles
+sacramento
+fresno
+sandiego
+
+#response = get('https://sfbay.craigslist.org/search/eby/apa?hasPic=1&availabilityMode=0')
+#response = get('https://sfbay.craigslist.org/search/cta?s=0&query=car&sort=rel&purveyor-input=all') 
+#https://sfbay.craigslist.org/search/cta?s=0&sort=rel&purveyor-input=all
+# cars and truks: https://sfbay.craigslist.org/search/cta?s=0&purveyor-input=all&bundleDuplicates=1
+#auto wheels and tires: https://sfbay.craigslist.org/search/wta?
+#auto parts: https://sfbay.craigslist.org/search/pta?
 # s=0 är bil 1-120 och s=120 är bil 121-240 sä en for loop som hoppar i = i + 120 där  init i = 0 !!! 
-html_soup = BeautifulSoup(response.text, 'html.parser')
+for n in range(3):
 
-posts = html_soup.find_all('li', class_= 'result-row')
-#print(type(posts)) #to double check that I got a ResultSet
-#print(len(posts)) #to double check I got 120 (elements/page)
-for i in range(len(posts)):
-    try:
-        dict_car={}
-        post = posts[i]
-
-        #title
-        #title is a and that class, link is grabbing the href attribute of that variable
-        post_title = post.find('a', class_='result-title hdrlnk')
-        post_link = post_title['href']
-        #easy to grab the post title by taking the text element of the title variable
-        post_title_text = post_title.text
-
-        dict_car["title"] = post_title_text
+    response = get("https://sfbay.craigslist.org/search/"+catigorys[n]+"?purveyor-input=all&bundleDuplicates=1")
+    html_soup = BeautifulSoup(response.text, 'html.parser')
 
 
-        #price
-        post_price = post.div.find('span',class_='result-price').text
-        price=int(post_price.strip().strip("$.").replace(",",""))
-        dict_car["price"]=price
-
-        #time
-        post_time = post.find('time', class_= 'result-date')
-        post_datetime = post_time['datetime']
-
-        dict_car["datetime"] = post_datetime
+    results_num = html_soup.find('div', class_= 'search-legend')
+    results_total = int(results_num.find('span', class_='totalcount').text)
+    pages = np.arange(0, 120, 120)#pages = np.arange(0, results_total+1, 120)
 
 
+    posts = html_soup.find_all('li', class_= 'result-row')
 
-        # **** Get infor from post it self
-        inner_response = get(post_link)
-        inner_html_soup = BeautifulSoup(inner_response.text, 'html.parser')
+    #print(type(posts)) #to double check that I got a ResultSet
+    #print(len(posts)) #to double check I got 120 (elements/page)
+    for j in range(len(pages)):
 
-        #Attribut
-        attrbs_group = inner_html_soup.find_all('p', class_= 'attrgroup')
-        product = attrbs_group[0].span.b.text
-        dict_car["product_name"] = product
-
-        dict_attrb={}
-        attrbs = attrbs_group[1].find_all('span')
-        for attrb in attrbs:
-            split_attrb=attrb.text.split(": ")
-            dict_attrb[split_attrb[0]] = split_attrb[1]
-
-        dict_car["attributs"] = dict_attrb
+        print(catigorys[n]+" page: "+str(j)+" of "+str(len(pages)-1))
 
 
-        description = inner_html_soup.find_all('section', id = 'postingbody')[0].text
-        dict_car["description"] = description
+        response = get("https://sfbay.craigslist.org/search/"+catigorys[n]+"?s=" + str(pages[j])+"&purveyor-input=all&bundleDuplicates=1" )
+
+        html_soup = BeautifulSoup(response.text, 'html.parser')
+        
+        posts = html_soup.find_all('li', class_= 'result-row')
+
+        
+        for i in range(len(posts)):
+            try:
+                dict_car={}
+                if(catigorys[n]=="cta"):
+                    dict_car["category"]="cars and truks"
+                elif(catigorys[n]=="wta"):
+                    dict_car["category"]="auto wheels and tires"
+                elif(catigorys[n]=="pta"):
+                    dict_car["category"]="auto parts"
+
+                post = posts[i]
+
+                #title
+                #title is a and that class, link is grabbing the href attribute of that variable
+                post_title = post.find('a', class_='result-title hdrlnk')
+                post_link = post_title['href']
+                #easy to grab the post title by taking the text element of the title variable
+                post_title_text = post_title.text
+
+                dict_car["title"] = post_title_text
 
 
-        list_car.append(dict_car.copy())
-        print(post_title_text)
-    except:
-        continue
+                #price
+                post_price = post.div.find('span',class_='result-price').text
+                price=int(post_price.strip().strip("$.").replace(",",""))
+                dict_car["price"]=price
 
-json_car=json.dumps(list_car)
+                #time
+                post_time = post.find('time', class_= 'result-date')
+                post_datetime = post_time['datetime']
+
+                dict_car["datetime"] = post_datetime
+
+
+
+                # **** Get infor from post it self
+                inner_response = get(post_link)
+                inner_html_soup = BeautifulSoup(inner_response.text, 'html.parser')
+                try:
+                    #Attribut IF sat need check if we have this
+                    attrbs_group = inner_html_soup.find_all('p', class_= 'attrgroup')
+                    product = attrbs_group[0].span.b.text
+                    dict_car["product_name"] = product
+
+                    
+                    #check second atribute lsit exist or not
+                    attrbs = attrbs_group[1].find_all('span')
+                    for attrb in attrbs:
+                        split_attrb=attrb.text.split(": ")
+                        dict_car[split_attrb[0]] = split_attrb[1]
+                except:
+                    pass
+                
+
+                description = inner_html_soup.find_all('section', id = 'postingbody')[0].text
+                dict_car["description"] = description
+
+
+                list_car.append(dict_car.copy())
+                
+                #print(post_title_text)
+            except:
+                continue
+
+#json_car=json.dumps(list_car)
 #pprint.pprint(json_car)
 #parsed = json.dumps(list_car)
 #print(json.dumps(parsed, indent=4, sort_keys=True))
 #print(json_car)
 
 
-with open('sample.json', 'w') as outfile:
-    json.dump(list_car, outfile)
+with open('sample4.0-.json', 'w') as outfile:
+    for dict_car in list_car:
+        json.dump(dict_car, outfile)
+        outfile.write("\n")
+#with open('sample.json', 'w') as outfile:
+#    json.dump(list_car, outfile)
 
 
