@@ -23,8 +23,8 @@ export default function MultilineTextField(props) {
       <div>
         <TextField
           id="filled-textarea"
-          label="Car brands"
-          placeholder="search for brand"
+          label='Free text: "audi 4wd gas"'
+          placeholder="Search for everything you want :D"
           multiline
           variant="filled"
           onChange = {props.handleChange}

@@ -107,7 +107,8 @@ export const car = (props) => (
         "must": {
           "multi_match": {
             "query": props,
-            "fields": ["title", "product_name", "transmission","description","fuel","type","condition","title", "status"], 
+            "fields":["type^2", "title^5", "product_name^4", "transmission","description*0","fuel","condition"]
+, 
             "fuzziness": "AUTO"
           }
         }
@@ -116,23 +117,23 @@ export const car = (props) => (
   }
 })
 
-export const car_price = (props) => (
+export const car_price = (text, priceFrom, priceTo) => (
   {
     index:"carsandtrucks",
     body:{
       "query": {
         "bool": {
-          "must": {
-            "multi_match": {
-              "query": props["query"],
-              "fields": ["title", "product_name", "transmission","description","fuel","type","condition","title", "status"], 
-              "fuzziness": "AUTO"
-            }
+          "must": 
+          [{
+          "multi_match": {
+            "query": text,
+            "fields":["type^2", "title^5", "product_name^4", "transmission","description*0","fuel","condition"],
+            "fuzziness": "AUTO"} 
           },
-          "filter": [ 
-            { "range": { "price": { "gte": props["gte"],"lte":props["lte"] }}}
-          ]
-        }
+          {"range": { "price": { "gte": priceFrom, "lte": priceTo }},}
+          
+        ],
+        },
       }
     }
   })
@@ -193,9 +194,12 @@ export const wheels = (name, loc) => (
       "query": {
         "bool" : {
           "must": [
-           {"match": {"title":  name}}],
+            {"multi_match" : {
+              "query": name,
+              "fields":["title^2", "description"]
+            }}],
             "filter" : [
-              {"term": {"location": loc }}]
+              {"term": {"location": loc}}]
         }
       }
     }
