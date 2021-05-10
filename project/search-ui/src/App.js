@@ -31,12 +31,12 @@ class App extends Component {
       results: "", 
       sort: -1,
       text: "",
-      priceFrom: -1, 
-      priceTo: -1, 
+      priceFrom: "", 
+      priceTo: "", 
     };
     this.noFound = false
-    this.priceFrom = -1 
-    this.priceTo = -1
+    this.priceFrom = "" 
+    this.priceTo = ""
 
     this.handleChange = this.handleChange.bind(this)
     this.handleClick = this.handleClick.bind(this)
@@ -132,7 +132,7 @@ class App extends Component {
 
   // TODO 
   sort(value) {
-    if(value === 0 && this.state.priceFrom === null && this.state.priceTo === null) {
+    if(value === 0 && this.state.priceFrom === "" && this.state.priceTo === "") {
       this.query(this.state.text)
     }
 

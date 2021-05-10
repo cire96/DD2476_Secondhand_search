@@ -67,7 +67,7 @@ export default function BasicTable(props) {
             <TableCell align="right">TYPE</TableCell>
             <TableCell align="right">WHEELS</TableCell>
             <TableCell align="right">WHEELS PRICE</TableCell>
-            <TableCell align="right">TOTAL PRICE</TableCell>
+            <TableCell align="right">TOTAL BUNDLE PRICE</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
