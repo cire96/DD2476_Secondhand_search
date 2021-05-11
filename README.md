@@ -18,7 +18,7 @@ Follow steps 1-3 for the header Elastic search and steps 1-3 for the header Kiba
 4. Repeat step 3 for sample4-0-wta.json but enter index name as **wheels**. 
 5. Restart elastic search and kibana servers in the terminals. 
 
-*** Step 3 NPM Install
+### Step 3 NPM Install
 1. Go to *project* and **npm install**. 
 2. In the same folder write **npm start**. 
 
