@@ -21,3 +21,4 @@ Follow steps 1-3 for the header Elastic search and steps 1-3 for the header Kiba
 ### Step 3 NPM Install
 1. Go to *project* and **npm install**. 
 2. In the same folder write **npm start**. 
+3. enter localhost:3000 in the web browser. 
